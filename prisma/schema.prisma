@@ -39,7 +39,7 @@ model Room {
 model Meeting {
   id          Int      @id @default(autoincrement())
   title       String
-  description String?
+  description String
   startTime   DateTime
   endTime     DateTime
   createdAt   DateTime @default(now())
