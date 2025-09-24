@@ -1,0 +1,1 @@
+{"version":3,"file":"IRoomUseCases.d.ts","sourceRoot":"","sources":["../../src/repositories/IRoomUseCases.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,IAAI,EAAE,MAAM,gBAAgB,CAAC;AAEtC,MAAM,WAAW,mBAAmB;IAClC,OAAO,IAAI,OAAO,CAAC,IAAI,EAAE,CAAC,CAAC;CAC5B;AAED,MAAM,WAAW,eAAe;IAC9B,OAAO,CAAC,MAAM,EAAE,MAAM,GAAG,OAAO,CAAC,IAAI,GAAG,IAAI,CAAC,CAAC;CAC/C"}
