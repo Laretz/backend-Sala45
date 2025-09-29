@@ -15,19 +15,19 @@ async function main(): Promise<void> {
   // Criar as 3 salas fixas
   const rooms: RoomData[] = [
     {
-      name: 'Sala Executiva',
-      capacity: 8,
-      location: 'Andar 10 - Ala Norte'
+      name: 'Sala de Reuniões',
+      capacity: 4,
+      location: '1º pavimento'
     },
     {
       name: 'Sala de Reuniões',
-      capacity: 12,
-      location: 'Andar 5 - Ala Sul'
+      capacity: 4,
+      location: '1º pavimento'
     },
     {
-      name: 'Auditório',
-      capacity: 50,
-      location: 'Térreo - Ala Central'
+      name: 'Sala de Reuniões',
+      capacity: 4,
+      location: '2º pavimento'
     }
   ];
 
