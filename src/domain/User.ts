@@ -3,6 +3,7 @@ export interface User {
   name: string;
   email: string;
   password: string;
+  role: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -18,6 +19,7 @@ export interface AuthResponse {
     id: number;
     name: string;
     email: string;
+    role: string;
   };
   token: string;
   message: string;
