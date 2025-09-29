@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -45,6 +46,30 @@ async function main(): Promise<void> {
     } else {
       console.log(`⚠️  Sala já existe: ${roomData.name}`);
     }
+  }
+
+  // Criar usuário ADMIN de teste
+  console.log('👤 Criando usuário ADMIN...');
+  
+  const adminEmail = 'admin@teste.com';
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: adminEmail }
+  });
+
+  if (!existingAdmin) {
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const admin = await prisma.user.create({
+      data: {
+        name: 'Administrador',
+        email: adminEmail,
+        password: hashedPassword,
+        role: 'ADMIN'
+      }
+    });
+    console.log(`✅ Usuário ADMIN criado: ${admin.email} (ID: ${admin.id})`);
+    console.log(`🔑 Senha: admin123`);
+  } else {
+    console.log(`⚠️  Usuário ADMIN já existe: ${adminEmail}`);
   }
 
   console.log('🎉 Seed concluído com sucesso!');

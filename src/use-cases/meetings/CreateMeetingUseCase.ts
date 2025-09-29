@@ -31,6 +31,12 @@ export class CreateMeetingUseCase implements ICreateMeetingUseCase {
       throw new Error('Não é possível agendar reuniões no passado');
     }
 
+    // Validar duração
+    const calculatedDuration = Math.round((endTime.getTime() - startTime.getTime()) / (1000 * 60));
+    if (calculatedDuration !== meetingData.duration) {
+      throw new Error('A duração informada não corresponde ao intervalo entre início e fim');
+    }
+
     // Verificar conflitos de horário
     const conflicts = await this.meetingRepository.checkTimeConflict(
       meetingData.roomId,
@@ -42,11 +48,17 @@ export class CreateMeetingUseCase implements ICreateMeetingUseCase {
       throw new Error(`Conflito de horário detectado. Já existe uma reunião agendada: "${conflicts[0].title}" das ${conflicts[0].startTime.toLocaleTimeString()} às ${conflicts[0].endTime.toLocaleTimeString()}`);
     }
 
-    // Criar reunião com datas convertidas
+    // Determinar status baseado na duração
+    // Reuniões de 30 minutos são aprovadas automaticamente
+    // Reuniões de 1h ou 2h precisam de aprovação
+    const status = meetingData.duration === 30 ? 'APPROVED' : 'PENDING';
+
+    // Criar reunião com datas convertidas e status
     const meetingDataWithDates = {
       ...meetingData,
       startTime,
-      endTime
+      endTime,
+      status
     };
     
     return await this.meetingRepository.create(meetingDataWithDates);

@@ -16,10 +16,14 @@ export class GetRoomMeetingsUseCase implements IGetRoomMeetingsUseCase {
       throw new Error("Sala não encontrada");
     }
 
+    let meetings: Meeting[];
     if (date) {
-      return await this.meetingRepository.findByRoomAndDate(roomId, date);
+      meetings = await this.meetingRepository.findByRoomAndDate(roomId, date);
     } else {
-      return await this.meetingRepository.findByRoomId(roomId);
+      meetings = await this.meetingRepository.findByRoomId(roomId);
     }
+
+    // Filtrar apenas reuniões aprovadas para exibição nas salas
+    return meetings.filter(meeting => meeting.status === 'APPROVED');
   }
 }

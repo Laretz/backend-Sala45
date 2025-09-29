@@ -19,11 +19,17 @@ router.get('/', (req, res) => meetingController.getAll(req, res));
 // GET /api/meetings/check-conflict - Verificar conflitos de horário
 router.get('/check-conflict', (req, res) => meetingController.checkConflict(req, res));
 
+// GET /api/meetings/pending - Listar reuniões pendentes (apenas RH/ADMIN)
+router.get('/pending', (req, res) => meetingController.getPendingMeetings(req, res));
+
 // GET /api/meetings/:id - Obter reunião específica
 router.get('/:id', (req, res) => meetingController.getById(req, res));
 
 // PUT /api/meetings/:id - Atualizar reunião
 router.put('/:id', (req, res) => meetingController.update(req, res));
+
+// PUT /api/meetings/:id/approve - Aprovar/Rejeitar reunião (apenas RH/ADMIN)
+router.put('/:id/approve', (req, res) => meetingController.approveMeeting(req, res));
 
 // DELETE /api/meetings/:id - Excluir reunião
 router.delete('/:id', (req, res) => meetingController.delete(req, res));

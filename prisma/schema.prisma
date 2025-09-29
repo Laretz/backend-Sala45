@@ -10,11 +10,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  RH
+  ADMIN
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   name      String
   email     String   @unique
   password  String
+  role      UserRole @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -36,14 +43,22 @@ model Room {
   @@map("rooms")
 }
 
+enum MeetingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model Meeting {
-  id          Int      @id @default(autoincrement())
+  id          Int           @id @default(autoincrement())
   title       String
   description String?
   startTime   DateTime
   endTime     DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  duration    Int           // Duração em minutos (30, 60, 120)
+  status      MeetingStatus @default(APPROVED) // Reuniões de 30min são aprovadas automaticamente
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   // Relacionamentos
   userId Int

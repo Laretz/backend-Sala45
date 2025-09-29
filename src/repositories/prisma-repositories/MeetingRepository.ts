@@ -85,6 +85,10 @@ export class MeetingRepository implements IMeetingRepository {
   ): Promise<MeetingConflict[]> {
     const whereClause: any = {
       roomId,
+      // Apenas considerar reuniões aprovadas ou pendentes como conflito
+      status: {
+        in: ['APPROVED', 'PENDING']
+      },
       OR: [
         {
           AND: [

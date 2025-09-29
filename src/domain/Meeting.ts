@@ -4,6 +4,8 @@ export interface Meeting {
   description?: string;
   startTime: Date;
   endTime: Date;
+  duration: number; 
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
   userId: number;
   roomId: number;
   createdAt: Date;
@@ -15,6 +17,7 @@ export interface CreateMeetingData {
   description?: string;
   startTime: Date;
   endTime: Date;
+  duration: number; 
   userId: number;
   roomId: number;
 }

@@ -14,11 +14,17 @@ export class MeetingController {
         return;
       }
 
-      const { title, description, startTime, endTime, roomId }: CreateMeetingData = req.body;
+      const { title, description, startTime, endTime, roomId, duration }: CreateMeetingData = req.body;
 
       // Validações básicas
-      if (!title || !startTime || !endTime || !roomId) {
-        res.status(400).json({ error: 'Título, horário de início, fim e sala são obrigatórios' });
+      if (!title || !startTime || !endTime || !roomId || !duration) {
+        res.status(400).json({ error: 'Título, horário de início, fim, sala e duração são obrigatórios' });
+        return;
+      }
+
+      // Validar duração permitida
+      if (![30, 60, 120].includes(duration)) {
+        res.status(400).json({ error: 'Duração deve ser 30, 60 ou 120 minutos' });
         return;
       }
 
@@ -27,6 +33,7 @@ export class MeetingController {
         description,
         startTime: new Date(startTime),
         endTime: new Date(endTime),
+        duration,
         roomId: Number(roomId),
         userId,
       };
@@ -190,6 +197,111 @@ export class MeetingController {
       res.json({ conflicts });
     } catch (error: any) {
       console.error('Erro ao verificar conflitos:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  async getPendingMeetings(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        res.status(401).json({ error: 'Usuário não autenticado' });
+        return;
+      }
+
+      // Verificar se o usuário tem permissão (RH ou ADMIN)
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { role: true }
+      });
+
+      if (!user || (user.role !== 'RH' && user.role !== 'ADMIN')) {
+        res.status(403).json({ error: 'Acesso negado. Apenas usuários RH ou ADMIN podem acessar.' });
+        return;
+      }
+
+      const pendingMeetings = await this.prisma.meeting.findMany({
+        where: { status: 'PENDING' },
+        include: {
+          user: {
+            select: { id: true, name: true, email: true }
+          },
+          room: {
+            select: { id: true, name: true }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+
+      res.json(pendingMeetings);
+    } catch (error: any) {
+      console.error('Erro ao buscar reuniões pendentes:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  async approveMeeting(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        res.status(401).json({ error: 'Usuário não autenticado' });
+        return;
+      }
+
+      // Verificar se o usuário tem permissão (RH ou ADMIN)
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { role: true }
+      });
+
+      if (!user || (user.role !== 'RH' && user.role !== 'ADMIN')) {
+        res.status(403).json({ error: 'Acesso negado. Apenas usuários RH ou ADMIN podem aprovar reuniões.' });
+        return;
+      }
+
+      const meetingId = Number(req.params.id);
+      if (isNaN(meetingId)) {
+        res.status(400).json({ error: 'ID da reunião inválido' });
+        return;
+      }
+
+      const { action } = req.body; // 'APPROVED' ou 'REJECTED'
+
+      if (!action || !['APPROVED', 'REJECTED'].includes(action)) {
+        res.status(400).json({ error: 'Ação deve ser APPROVED ou REJECTED' });
+        return;
+      }
+
+      const meeting = await this.prisma.meeting.findUnique({
+        where: { id: meetingId }
+      });
+
+      if (!meeting) {
+        res.status(404).json({ error: 'Reunião não encontrada' });
+        return;
+      }
+
+      if (meeting.status !== 'PENDING') {
+        res.status(400).json({ error: 'Reunião já foi processada' });
+        return;
+      }
+
+      const updatedMeeting = await this.prisma.meeting.update({
+        where: { id: meetingId },
+        data: { status: action },
+        include: {
+          user: {
+            select: { id: true, name: true, email: true }
+          },
+          room: {
+            select: { id: true, name: true }
+          }
+        }
+      });
+
+      res.json(updatedMeeting);
+    } catch (error: any) {
+      console.error('Erro ao aprovar/rejeitar reunião:', error);
       res.status(500).json({ error: 'Erro interno do servidor' });
     }
   }
